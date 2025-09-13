@@ -1,0 +1,51 @@
+<h2>Lista de Productos</h2>
+
+<div class="filters">
+    <form action="/products" method="GET">
+        <label for="limit">Mostrar:</label>
+        <select name="limit" id="limit" onchange="this.form.submit()">
+            <option value="5" {{#if (eq currentLimit '5')}}selected{{/if}}>5</option>
+            <option value="10" {{#if (eq currentLimit '10')}}selected{{/if}}>10</option>
+            <option value="20" {{#if (eq currentLimit '20')}}selected{{/if}}>20</option>
+        </select>
+
+        <label for="sort">Ordenar por precio:</label>
+        <select name="sort" id="sort" onchange="this.form.submit()">
+            <option value="">Ninguno</option>
+            <option value="asc" {{#if (eq currentSort 'asc')}}selected{{/if}}>Ascendente</option>
+            <option value="desc" {{#if (eq currentSort 'desc')}}selected{{/if}}>Descendente</option>
+        </select>
+
+        <label for="query">Buscar:</label>
+        <input type="text" name="query" id="query" value="{{currentQuery}}">
+        <button type="submit">Aplicar</button>
+    </form>
+</div>
+
+<div class="product-grid">
+    {{#each products}}
+        <div class="product-card">
+            <h3>{{this.title}}</h3>
+            <p>{{this.description}}</p>
+            <p><strong>Precio: ${{this.price}}</strong></p>
+            <p>Categoría: {{this.category}}</p>
+            <p>Stock: {{this.stock}}</p>
+            {{#if this.thumbnail}}
+                <img src="{{this.thumbnail}}" alt="{{this.title}}" style="max-width: 100px;">
+            {{/if}}
+            <button class="add-to-cart-btn" data-product-id="{{this._id}}">Agregar al Carrito</button>
+        </div>
+    {{else}}
+        <p>No hay productos disponibles.</p>
+    {{/each}}
+</div>
+
+<div class="pagination">
+    {{#if hasPrevPage}}
+        <a href="{{prevLink}}">Anterior</a>
+    {{/if}}
+    <span>Página {{currentPage}} de {{totalPages}}</span>
+    {{#if hasNextPage}}
+        <a href="{{nextLink}}">Siguiente</a>
+    {{/if}}
+</div>
