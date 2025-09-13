@@ -4,7 +4,7 @@ const connectDB = require('./config/mongodb.config');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 8080;
+const PORT = 8080;
 
 // Conectar a la base de datos
 connectDB();
