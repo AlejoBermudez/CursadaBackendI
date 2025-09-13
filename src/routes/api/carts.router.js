@@ -4,7 +4,7 @@ const Product = require('../../models/product.model');
 
 const router = Router();
 
-// Crear un nuevo carrito
+
 router.post('/', async (req, res) => {
     try {
         const newCart = await Cart.create({});
@@ -15,11 +15,11 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Obtener un carrito por ID con populate
+
 router.get('/:cid', async (req, res) => {
     try {
         const { cid } = req.params;
-        const cart = await Cart.findById(cid).lean(); // .lean() para Handlebars
+        const cart = await Cart.findById(cid).lean(); 
         if (!cart) {
             return res.status(404).json({ status: 'error', message: 'Carrito no encontrado' });
         }
@@ -30,7 +30,7 @@ router.get('/:cid', async (req, res) => {
     }
 });
 
-// Añadir un producto al carrito
+
 router.post('/:cid/products/:pid', async (req, res) => {
     try {
         const { cid, pid } = req.params;
@@ -55,7 +55,7 @@ router.post('/:cid/products/:pid', async (req, res) => {
         }
 
         await cart.save();
-        // Volver a poblar para la respuesta si es necesario, o la middleware ya lo hizo.
+    
         const updatedCart = await Cart.findById(cid).lean();
         res.json({ status: 'success', payload: updatedCart });
 
@@ -65,18 +65,17 @@ router.post('/:cid/products/:pid', async (req, res) => {
     }
 });
 
-// Actualizar todos los productos del carrito con un arreglo de productos
+
 router.put('/:cid', async (req, res) => {
     try {
         const { cid } = req.params;
-        const productsArray = req.body.products; // Espera un arreglo de { product: productId, quantity: number }
-
+        const productsArray = req.body.products; 
         const cart = await Cart.findById(cid);
         if (!cart) {
             return res.status(404).json({ status: 'error', message: 'Carrito no encontrado' });
         }
 
-        cart.products = []; // Limpiar productos existentes
+        cart.products = []; 
         for (const item of productsArray) {
             const productExists = await Product.findById(item.product);
             if (!productExists) {
@@ -95,7 +94,7 @@ router.put('/:cid', async (req, res) => {
     }
 });
 
-// Actualizar SOLO la cantidad de ejemplares de un producto en el carrito
+
 router.put('/:cid/products/:pid', async (req, res) => {
     try {
         const { cid, pid } = req.params;
@@ -127,7 +126,7 @@ router.put('/:cid/products/:pid', async (req, res) => {
     }
 });
 
-// Eliminar un producto específico del carrito
+
 router.delete('/:cid/products/:pid', async (req, res) => {
     try {
         const { cid, pid } = req.params;
@@ -154,7 +153,7 @@ router.delete('/:cid/products/:pid', async (req, res) => {
     }
 });
 
-// Eliminar TODOS los productos del carrito
+
 router.delete('/:cid', async (req, res) => {
     try {
         const { cid } = req.params;
@@ -164,7 +163,7 @@ router.delete('/:cid', async (req, res) => {
             return res.status(404).json({ status: 'error', message: 'Carrito no encontrado' });
         }
 
-        cart.products = []; // Vaciar el array de productos
+        cart.products = []; 
         await cart.save();
         const updatedCart = await Cart.findById(cid).lean();
         res.json({ status: 'success', payload: updatedCart });

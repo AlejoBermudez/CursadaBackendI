@@ -17,6 +17,9 @@ app.use(express.static(__dirname + '/public'));
 // Configuración de Handlebars
 app.engine('handlebars', handlebars.engine({
     defaultLayout: 'main',
+     helpers: {
+        eq: (a, b) => a === b
+    },
     runtimeOptions: {
         allowProtoPropertiesByDefault: true,
         allowProtoMethodsByDefault: true,
@@ -30,7 +33,9 @@ const productsApiRouter = require('./routes/api/products.router');
 const cartsApiRouter = require('./routes/api/carts.router');
 const productsViewRouter = require('./routes/views/products.view.router');
 const cartsViewRouter = require('./routes/views/carts.view.router');
-
+app.get('/', (req, res) => {
+    res.send('Servidor funcionando correctamente 🚀');
+});
 // Rutas de la API
 app.use('/api/products', productsApiRouter);
 app.use('/api/carts', cartsApiRouter);

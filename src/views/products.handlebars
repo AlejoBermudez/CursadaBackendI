@@ -1,7 +1,7 @@
 <h2>Lista de Productos</h2>
 
 <div class="filters">
-    <form action="/products" method="GET">
+    <form action="/products" id="filter-form" method="GET">
         <label for="limit">Mostrar:</label>
         <select name="limit" id="limit" onchange="this.form.submit()">
             <option value="5" {{#if (eq currentLimit '5')}}selected{{/if}}>5</option>

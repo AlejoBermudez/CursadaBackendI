@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
         const options = {
             limit: parseInt(limit),
             page: parseInt(page),
-            lean: true // Para que Handlebars pueda renderizar los objetos
+            lean: true
         };
 
         const filter = {};
@@ -26,6 +26,7 @@ router.get('/', async (req, res) => {
 
         const products = await Product.paginate(filter, options);
 
+        // Envía los productos como una respuesta JSON
         res.json({ status: 'success', payload: products });
 
     } catch (error) {
@@ -73,6 +74,5 @@ router.delete('/:pid', async (req, res) => {
         res.status(500).json({ status: 'error', message: 'Error interno del servidor' });
     }
 });
-
 
 module.exports = router;
