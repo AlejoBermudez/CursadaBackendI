@@ -1,30 +1,27 @@
 
 const express = require('express');
 const { Server } = require('socket.io');
-const http = require('http'); // Importamos el módulo http
+const http = require('http'); 
 const handlebars = require('express-handlebars');
 const path = require('path');
-const ProductManager = require('./dao/managers/ProductManager'); // Asegúrate de que la ruta sea correcta
+const ProductManager = require('./dao/managers/ProductManager');
 const productsRouter = require('./routes/api/products.router.js');
 const cartsRouter = require('./routes/api/carts.router.js');
 const cartsViewRouter = require('./routes/views/carts.view.router');
 
 
 const app = express();
-const server = http.createServer(app); // Creamos un servidor http
-const io = new Server(server); // Creamos el servidor de WebSockets sobre el servidor http
+const server = http.createServer(app); 
+const io = new Server(server); 
 const connectDB = require ('./config/mongodb.config.js')
-// Configuración de Handlebars
 app.engine('handlebars', handlebars.engine());
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'handlebars');
 
-// Middlewares
 async function startServer() {
     try {
-        await connectDB(); // Esperamos a que la base de datos se conecte
+        await connectDB(); 
 
-        // Middlewares
         app.use(express.json());
         app.use(express.urlencoded({ extended: true }));
         app.use(express.static(path.join(__dirname, 'public')));
@@ -33,8 +30,11 @@ async function startServer() {
         app.use('/api/products', productsRouter);
         app.use('/api/carts', cartsRouter);
         app.use('/carts', cartsViewRouter);
-        
+
         // Rutas de las vistas
+        app.get('/', (req, res) => {
+            res.render('index', { message: 'Bienvenido a mi Tienda Online' });
+        }); 
         app.get('/realtimeproducts', (req, res) => {
             res.render('realtimeProducts');
         });
@@ -46,14 +46,14 @@ async function startServer() {
             socket.emit('updateProducts', products.docs);
         });
 
-        // Inicia el servidor solo después de la conexión exitosa a la DB
+        // Inicia el servidor
         server.listen(8080, () => {
             console.log('Servidor escuchando en el puerto 8080');
         });
 
     } catch (error) {
         console.error('Error al iniciar el servidor:', error);
-        process.exit(1); // Salir si hay un error
+        process.exit(1); 
     }
 }
 
