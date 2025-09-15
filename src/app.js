@@ -1,51 +1,60 @@
+
 const express = require('express');
+const { Server } = require('socket.io');
+const http = require('http'); // Importamos el módulo http
 const handlebars = require('express-handlebars');
-const connectDB = require('./config/mongodb.config');
-require('dotenv').config();
+const path = require('path');
+const ProductManager = require('./dao/managers/ProductManager'); // Asegúrate de que la ruta sea correcta
+const productsRouter = require('./routes/api/products.router.js');
+const cartsRouter = require('./routes/api/carts.router.js');
+const cartsViewRouter = require('./routes/views/carts.view.router');
+
 
 const app = express();
-const PORT = 8080;
-
-// Conectar a la base de datos
-connectDB();
-
-// Middlewares
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(__dirname + '/public'));
-
+const server = http.createServer(app); // Creamos un servidor http
+const io = new Server(server); // Creamos el servidor de WebSockets sobre el servidor http
+const connectDB = require ('./config/mongodb.config.js')
 // Configuración de Handlebars
-app.engine('handlebars', handlebars.engine({
-    defaultLayout: 'main',
-     helpers: {
-        eq: (a, b) => a === b
-    },
-    runtimeOptions: {
-        allowProtoPropertiesByDefault: true,
-        allowProtoMethodsByDefault: true,
-    }
-}));
-app.set('views', __dirname + '/views');
+app.engine('handlebars', handlebars.engine());
+app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'handlebars');
 
-// Importar rutas
-const productsApiRouter = require('./routes/api/products.router');
-const cartsApiRouter = require('./routes/api/carts.router');
-const productsViewRouter = require('./routes/views/products.view.router');
-const cartsViewRouter = require('./routes/views/carts.view.router');
-app.get('/', (req, res) => {
-    res.send('Servidor funcionando correctamente 🚀');
-});
-// Rutas de la API
-app.use('/api/products', productsApiRouter);
-app.use('/api/carts', cartsApiRouter);
+// Middlewares
+async function startServer() {
+    try {
+        await connectDB(); // Esperamos a que la base de datos se conecte
 
-// Rutas de las vistas
-app.use('/products', productsViewRouter);
-app.use('/cart', cartsViewRouter);
+        // Middlewares
+        app.use(express.json());
+        app.use(express.urlencoded({ extended: true }));
+        app.use(express.static(path.join(__dirname, 'public')));
+        
+        // Rutas de la API
+        app.use('/api/products', productsRouter);
+        app.use('/api/carts', cartsRouter);
+        app.use('/carts', cartsViewRouter);
+        
+        // Rutas de las vistas
+        app.get('/realtimeproducts', (req, res) => {
+            res.render('realtimeProducts');
+        });
 
+        // WebSockets
+        io.on('connection', async (socket) => {
+            console.log('Nuevo cliente conectado');
+            const products = await ProductManager.getProducts({}, { limit: 10, page: 1, lean: true });
+            socket.emit('updateProducts', products.docs);
+        });
 
-// Iniciar el servidor
-app.listen(PORT, () => {
-    console.log(`Servidor escuchando en el puerto ${PORT}`);
-});
+        // Inicia el servidor solo después de la conexión exitosa a la DB
+        server.listen(8080, () => {
+            console.log('Servidor escuchando en el puerto 8080');
+        });
+
+    } catch (error) {
+        console.error('Error al iniciar el servidor:', error);
+        process.exit(1); // Salir si hay un error
+    }
+}
+
+startServer();

@@ -1,37 +1,21 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    // Código para agregar productos al carrito
-    const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
-    if (addToCartButtons) {
-        addToCartButtons.forEach(button => {
-            button.addEventListener('click', async (event) => {
-                const productId = event.target.dataset.productId;
-                const cartId = '68c4de40738a9aa080cebeb3';
+    const cartLink = document.getElementById('cartLink');
 
-                try {
-                    const response = await fetch(`/api/carts/${cartId}/products/${productId}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ quantity: 1 }) 
-                    });
+    if (cartLink) {
+        cartLink.addEventListener('click', (event) => {
+   
+            event.preventDefault()
+            const cartId = localStorage.getItem('cartId');
 
-                    const data = await response.json();
-                    if (data.status === 'success') {
-                        alert('Producto añadido al carrito!');
-                        
-                    } else {
-                        alert('Error al añadir producto: ' + data.message);
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('Hubo un error al conectar con el servidor.');
-                }
-            });
+            if (cartId) {
+                window.location.href = `/carts/${cartId}`;
+            } else {
+                alert('Por favor, crea un carrito primero.');
+            }
         });
+
     }
 
-    // Código para eliminar productos del carrito
     const removeProductButtons = document.querySelectorAll('.remove-from-cart-btn');
     if (removeProductButtons) {
         removeProductButtons.forEach(button => {
@@ -68,7 +52,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Código para vaciar el carrito
     const clearCartButton = document.querySelector('.clear-cart-btn');
     if (clearCartButton) {
         clearCartButton.addEventListener('click', async (event) => {
@@ -102,7 +85,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Código para el formulario de filtrado
     const filterForm = document.querySelector('#filter-form');
     if (filterForm) {
         filterForm.addEventListener('submit', async (event) => {
@@ -111,8 +93,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             const limit = document.querySelector('#limit').value;
             const sort = document.querySelector('#sort').value;
             const query = document.querySelector('#query').value;
-
-            // La URL y la petición fetch están aquí, donde `limit`, `sort`, y `query` existen
             const url = `/api/products?limit=${limit}&sort=${sort}&query=${query}`;
             
             try {
@@ -128,7 +108,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                   if (data.payload.docs && data.payload.docs.length > 0) {
             data.payload.docs.forEach(product => {
                 const productElement = document.createElement('div');
-                // Asegúrate de que las propiedades del producto (title, price, etc.) sean correctas
                 productElement.innerHTML = `
                     <h3>${product.title}</h3>
                     <p>Precio: $${product.price}</p>

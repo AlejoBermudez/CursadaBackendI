@@ -1,18 +1,15 @@
 const { Router } = require('express');
-const Product = require('../../models/product.model');
+const ProductManager = require('../../dao/managers/ProductManager');
 
 const router = Router();
+
 
 router.get('/', async (req, res) => {
     try {
         const { limit = 10, page = 1, sort, query } = req.query;
-        const options = {
-            limit: parseInt(limit),
-            page: parseInt(page),
-            lean: true
-        };
-
+        const options = { limit: parseInt(limit), page: parseInt(page), lean: true };
         const filter = {};
+
         if (query) {
             filter.$or = [
                 { category: { $regex: query, $options: 'i' } },
@@ -24,13 +21,11 @@ router.get('/', async (req, res) => {
             options.sort = { price: sort === 'asc' ? 1 : -1 };
         }
 
-        const products = await Product.paginate(filter, options);
-
-        // Envía los productos como una respuesta JSON
+        const products = await ProductManager.getProducts(filter, options);
         res.json({ status: 'success', payload: products });
 
     } catch (error) {
-        console.error('Error al obtener productos:', error);
+        console.error('Error en el router al obtener productos:', error);
         res.status(500).json({ status: 'error', message: 'Error interno del servidor' });
     }
 });
@@ -38,10 +33,10 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
     try {
         const newProduct = req.body;
-        const product = await Product.create(newProduct);
+        const product = await ProductManager.addProduct(newProduct);
         res.status(201).json({ status: 'success', payload: product });
     } catch (error) {
-        console.error('Error al crear producto:', error);
+        console.error('Error en el router al crear producto:', error);
         res.status(500).json({ status: 'error', message: 'Error interno del servidor' });
     }
 });
@@ -50,7 +45,7 @@ router.put('/:pid', async (req, res) => {
     try {
         const { pid } = req.params;
         const updatedProduct = req.body;
-        const product = await Product.findByIdAndUpdate(pid, updatedProduct, { new: true });
+        const product = await ProductManager.findByIdAndUpdate(pid, updatedProduct)
         if (!product) {
             return res.status(404).json({ status: 'error', message: 'Producto no encontrado' });
         }
@@ -64,7 +59,7 @@ router.put('/:pid', async (req, res) => {
 router.delete('/:pid', async (req, res) => {
     try {
         const { pid } = req.params;
-        const product = await Product.findByIdAndDelete(pid);
+        const product = await ProductManager.findByIdAndDelete(pid);
         if (!product) {
             return res.status(404).json({ status: 'error', message: 'Producto no encontrado' });
         }

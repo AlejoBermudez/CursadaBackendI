@@ -1,0 +1,16 @@
+<h1>Productos en Tiempo Real</h1>
+<div class="cart-action-container">
+    <button id="createCartBtn">Crear Carrito</button>
+</div>
+<ul id="productList">
+
+    {{#each products}}
+        <li>
+            {{this.title}} - ${{this.price}}
+            <button class="add-to-cart-btn" data-product-id="{{this._id}}" disabled>Agregar al Carrito</button>
+        </li>
+    {{/each}}
+</ul>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/realtime.js"></script>

@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
         const options = {
             limit: parseInt(limit),
             page: parseInt(page),
-            lean: true // Importante para pasar objetos a Handlebars
+            lean: true 
         };
 
         const filter = {};
@@ -26,7 +26,7 @@ router.get('/', async (req, res) => {
 
         const productsData = await Product.paginate(filter, options);
 
-        // Construir links para paginación
+       
         const baseUrl = req.protocol + '://' + req.get('host') + req.originalUrl.split('?')[0];
         const buildLink = (pageNumber) => {
             const queryParams = new URLSearchParams(req.query);
@@ -46,7 +46,6 @@ router.get('/', async (req, res) => {
             hasNextPage,
             prevLink: hasPrevPage ? buildLink(prevPage) : null,
             nextLink: hasNextPage ? buildLink(nextPage) : null,
-            // Puedes pasar los query params para mantener los filtros en los links
             currentLimit: limit,
             currentSort: sort,
             currentQuery: query

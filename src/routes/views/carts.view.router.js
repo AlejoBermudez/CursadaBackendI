@@ -1,21 +1,21 @@
+
 const { Router } = require('express');
-const Cart = require('../../models/cart.model');
+const CartManager = require('../../dao/managers/CartManager');
 
 const router = Router();
+const cartManager = new CartManager();
 
 router.get('/:cid', async (req, res) => {
     try {
         const { cid } = req.params;
-        const cart = await Cart.findById(cid).lean(); // .lean() para Handlebars
+        const cart = await cartManager.getCartById(cid);
         if (!cart) {
-            return res.status(404).render('error', { message: 'Carrito no encontrado' });
+            return res.render('cart', { error: 'Carrito no encontrado' });
         }
-
         res.render('cart', { cart });
-
     } catch (error) {
-        console.error('Error al obtener el carrito para la vista:', error);
-        res.status(500).render('error', { message: 'Error al cargar el carrito.' });
+        console.error('Error al obtener el carrito:', error);
+        res.status(500).render('error', { message: 'Error al obtener el carrito' });
     }
 });
 

@@ -17,7 +17,6 @@ const cartSchema = new mongoose.Schema({
     ]
 });
 
-// Middleware para populate automático en find
 cartSchema.pre('findOne', function(next) {
     this.populate('products.product');
     next();
